@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>DayPlan</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f8;--card:#fff;--tx:#121528;--mut:#6b7090;--ac:#4b3fe0;--sun:#f59e0b;--ok:#10b981;--bad:#ef4444;--bd:#dde1f0;--chip:#e8ebf7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0e1f;--card:#151a33;--tx:#eef0ff;--mut:#8d93bd;--bd:#232a4d;--chip:#1e2547;--ac:#8b7dff;--sun:#ffb84d}}
+:root[data-theme="dark"]{--bg:#0b0e1f;--card:#151a33;--tx:#eef0ff;--mut:#8d93bd;--bd:#232a4d;--chip:#1e2547;--ac:#8b7dff;--sun:#ffb84d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.45 Outfit,system-ui,-apple-system,Segoe UI,sans-serif}
+#app{max-width:620px;margin:0 auto;padding:18px 16px 120px}
+header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+header h1{font-size:30px;line-height:1.1;font-weight:800;margin:0;letter-spacing:-.8px}header small{color:var(--mut);font-size:15px}
+.ib{border:0;background:var(--chip);color:var(--tx);border-radius:50%;width:40px;height:40px;font-size:17px;cursor:pointer;margin-left:6px}
+.card{background:var(--card);border-radius:22px;padding:16px;margin-bottom:14px;box-shadow:0 1px 0 var(--bd)}
+h3{margin:0 0 10px;font-size:18px;font-weight:600}h4{margin:18px 4px 8px;font-size:14px;color:var(--mut);font-weight:600}
+.goal{display:block;width:100%;text-align:left;border:0;cursor:pointer;color:var(--tx);background:var(--card);border-left:6px solid var(--sun);border-radius:18px;padding:14px 16px;margin-bottom:14px;font:inherit}
+.goal b{display:block;font-size:19px;line-height:1.2}.goal small{color:var(--mut)}
+.bar{height:8px;border-radius:8px;background:var(--chip);overflow:hidden;margin:10px 0 6px}.bar i{display:block;height:100%;background:var(--sun);border-radius:8px;transition:width .6s}
+.prog{display:flex;justify-content:space-between;color:var(--mut);font-size:14px;margin:2px 4px 12px}.prog .bar{flex:1;margin:7px 12px 0 0}
+textarea,input,select{width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid transparent;background:var(--chip);color:var(--tx);font:inherit;resize:none}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--ac)}button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.opts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.c{position:relative;border:0;background:var(--chip);color:var(--tx);border-radius:999px;padding:7px 13px;font:600 14px inherit;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.c.on{background:var(--ac);color:#fff}.c input{position:absolute;inset:0;opacity:0;width:100%;padding:0;cursor:pointer}
+.tl{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:14px;color:var(--mut)}.tl input{width:auto;padding:6px 10px}
+.btn{width:100%;padding:13px;border:0;border-radius:14px;background:var(--ac);color:#fff;font:600 16px inherit;cursor:pointer;margin-top:6px;transition:transform .1s}
+.btn:active{transform:scale(.97)}.btn.ghost{background:var(--chip);color:var(--tx)}
+.task{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--bd)}
+.when{width:62px;flex:none;font-size:13px;font-weight:600;color:var(--ac);line-height:1.2}.when.any{color:var(--mut)}
+.tb{flex:1;min-width:0}.tb b{font-weight:600}.tb small{display:block;color:var(--mut)}
+.task.done .tb b{text-decoration:line-through;opacity:.45}.task.missed .tb b{color:var(--bad)}
+.chk{width:30px;height:30px;border-radius:50%;border:2px solid var(--ac);background:none;color:#fff;font-size:15px;cursor:pointer;flex:none}
+.done .chk{background:var(--ok);border-color:var(--ok);animation:pop .3s}@keyframes pop{50%{transform:scale(1.3)}}
+.cd{font-variant-numeric:tabular-nums;font-weight:800;color:var(--sun)}
+.x{background:none;border:0;color:var(--mut);cursor:pointer;font-size:15px;padding:6px}
+.step{display:flex;gap:10px;align-items:center;padding:6px 0}.step.done span{text-decoration:line-through;opacity:.5}
+.step .chk{width:24px;height:24px;font-size:12px;border-color:var(--sun)}.step.done .chk{background:var(--sun);border-color:var(--sun)}
+.empty{text-align:center;color:var(--mut);padding:22px 10px}
+nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;gap:4px;padding:6px;background:var(--card);border-radius:999px;box-shadow:0 8px 28px rgba(20,20,60,.25)}
+nav button{border:0;background:none;color:var(--mut);font:600 14px inherit;padding:10px 18px;border-radius:999px;cursor:pointer}nav button.on{background:var(--ac);color:#fff}
+#mo{display:none;position:fixed;inset:0;background:rgba(8,8,28,.75);z-index:9;align-items:center;justify-content:center;padding:20px}
+#mo.on{display:flex}#mo .card{max-width:380px;width:100%;text-align:center;animation:pop .35s}
+#mo .em{font-size:58px;display:inline-block;animation:ring .5s infinite alternate}@keyframes ring{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+#mo h2{margin:6px 0}#mo p{color:var(--mut);margin:0 0 10px}
+.note{font-size:13px;color:var(--mut);text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body><div id="app"></div><nav id="nav"></nav><div id="mo"></div>
+<script>
+const $=s=>document.querySelector(s),K='dayplan.v1',pad=n=>String(n).padStart(2,'0');
+let S={tasks:[],goals:[],lastNight:'',theme:''};
+try{S=Object.assign(S,JSON.parse(localStorage.getItem(K)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>ymd(new Date()),tmr=()=>{const d=new Date();d.setDate(d.getDate()+1);return ymd(d)};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=t=>{const[h,m]=t.split(':').map(Number);return`${h%12||12}:${pad(m)} ${h<12?'AM':'PM'}`};
+const get=id=>S.tasks.find(t=>t.id===id),ts=(d,t)=>new Date(`${d}T${t}`).getTime();
+let tab='today',planDate=tmr(),Q=[],loop,ac,nd=0;
+if(S.theme)document.documentElement.dataset.theme=S.theme;
+function theme(){const dk=document.documentElement.dataset.theme==='dark'||(!S.theme&&matchMedia('(prefers-color-scheme:dark)').matches);S.theme=dk?'light':'dark';document.documentElement.dataset.theme=S.theme;save()}
+function go(t){tab=t;render()}
+function stepInfo(id){for(const g of S.goals){const s=g.steps.find(s=>s.id===id);if(s)return s}}
+function goal(){
+ const g=S.goals.find(g=>g.steps.some(s=>!s.done))||S.goals[0];
+ if(!g)return`<button class="goal" onclick="go('goals')"><small>Your goal</small><b>Set the goal you’re working toward</b></button>`;
+ const d=g.steps.filter(s=>s.done).length,p=g.steps.length?Math.round(d/g.steps.length*100):0,n=g.steps.find(s=>!s.done);
+ return`<button class="goal" onclick="go('goals')"><small>🎯 Your goal</small><b>${esc(g.title)}</b><div class="bar"><i style="width:${p}%"></i></div><small>${p}% · ${n?'Next step: '+esc(n.t):'All steps complete 🎉'}</small></button>`}
+function row(t){const s=stepInfo(t.step),pend=t.status==='pending';
+ let r='';
+ if(pend&&t.run)r=`<span class="cd" data-e="${t.run}"></span>`;
+ else if(pend&&t.dur)r=`<button class="c" onclick="startT('${t.id}')">▶ ${t.dur}m</button>`;
+ if(pend&&!t.time)r+=`<label class="c">⏰ Set time<input type="time" onchange="setTime('${t.id}',this.value)"></label>`;
+ return`<div class="task ${t.status}"><button class="chk" aria-label="Toggle done" onclick="setSt('${t.id}','${t.status==='done'?'pending':'done'}')">${t.status==='done'?'✓':''}</button><div class="tb"><b>${esc(t.title)}</b>${s?`<small>🎯 ${esc(s.t)}</small>`:''}${t.status==='missed'?'<small>Not done</small>':''}</div>${r}<button class="x" aria-label="Delete" onclick="del('${t.id}')">✕</button></div>`}
+function list(date){
+ const a=S.tasks.filter(t=>t.date===date),tm=a.filter(t=>t.time).sort((x,y)=>x.time.localeCompare(y.time)),an=a.filter(t=>!t.time);
+ if(!a.length)return'<div class="empty">Nothing here yet. Dump anything above — add a time only when it matters.</div>';
+ const R=t=>row(t).replace('<div class="task',`<div class="task`).replace('<button class="chk"',`<span class="when ${t.time?'':'any'}">${t.time?fmt(t.time):'Anytime'}</span><button class="chk"`);
+ return`<div class="card" style="padding:6px 14px">${tm.map(R).join('')}${an.map(R).join('')}</div>`}
+function form(date){
+ const o=S.goals.flatMap(g=>g.steps.filter(s=>!s.done).map(s=>`<option value="${s.id}">🎯 ${esc(s.t)}</option>`)).join('');
+ return`<div class="card"><textarea id="tt" rows="2" placeholder="Brain dump or plan a task… (one per line)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addTask('${date}')}"></textarea>
+<div class="opts"><label class="tl">⏰ Time <input id="tm" type="time"></label><span class="tl">Timer</span><span id="dc" style="display:contents">${[[0,'None'],[15,'15m'],[30,'30m'],[60,'1h'],[120,'2h']].map(([v,l])=>`<button class="c ${nd===v?'on':''}" data-v="${v}" onclick="setDur(${v})">${l}</button>`).join('')}</span></div>
+${o?`<select id="ts" style="margin-bottom:6px"><option value="">Not linked to a goal step</option>${o}</select>`:''}<button class="btn" onclick="addTask('${date}')">Add</button></div>`}
+function todayView(){
+ const a=S.tasks.filter(t=>t.date===today()),d=a.filter(t=>t.status==='done').length,p=a.length?Math.round(d/a.length*100):0;
+ return goal()+form(today())+(a.length?`<div class="prog"><div class="bar"><i style="width:${p}%;background:var(--ok)"></i></div><span>${d}/${a.length} done</span></div>`:'')+list(today())+`<p class="note">Keep this tab open so alarms can ring.</p>`}
+function planView(){
+ return`<div class="card"><h3>Plan ahead</h3><input type="date" id="pd" value="${planDate}" onchange="planDate=this.value;render()"><p class="note" style="margin:8px 0 0">A reminder arrives at 9:30 PM, but you can plan any time.</p></div>`+goal()+form(planDate)+list(planDate)}
+function goalsView(){
+ return`<div class="card"><h3>New goal</h3><input id="gt" placeholder="e.g. Launch my product by December"><button class="btn" onclick="addGoal()">Set goal</button></div>`+
+ (S.goals.map(g=>{const d=g.steps.filter(s=>s.done).length,p=g.steps.length?Math.round(d/g.steps.length*100):0;
+ return`<div class="card" style="border-left:6px solid var(--sun)"><div style="display:flex;justify-content:space-between"><h3>🎯 ${esc(g.title)}</h3><button class="x" onclick="delGoal('${g.id}')">✕</button></div><div class="bar"><i style="width:${p}%"></i></div><small style="color:var(--mut)">${d}/${g.steps.length} steps · ${p}%</small>`+
+ g.steps.map(s=>`<div class="step ${s.done?'done':''}"><button class="chk" onclick="togStep('${s.id}')">${s.done?'✓':''}</button><span>${esc(s.t)}</span></div>`).join('')+
+ `<div style="display:flex;gap:8px;margin-top:8px"><input id="st-${g.id}" placeholder="Add a step"><button class="btn" style="width:auto;margin:0;padding:0 18px" onclick="addStep('${g.id}')">Add</button></div></div>`}).join('')||'<div class="empty">No goals yet. Your goal is pinned on Today and Plan.</div>')}
+function render(){
+ const h=new Date().getHours(),gr=h<12?'Good morning':h<18?'Good afternoon':'Good evening',st=('Notification'in window&&Notification.permission==='granted')?'🔔':'🔕';
+ $('#app').innerHTML=`<header><div><h1>${gr},<br>Akshay</h1><small>${new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})}</small></div><div><button class="ib" aria-label="Toggle theme" onclick="theme()">🌓</button><button class="ib" aria-label="Enable alerts" onclick="enable()">${st}</button></div></header>`+(tab==='today'?todayView():tab==='plan'?planView():goalsView());
+ $('#nav').innerHTML=[['today','☀️ Today'],['plan','🌙 Plan'],['goals','🎯 Goals']].map(([k,l])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')">${l}</button>`).join('');cd()}
+function setDur(v){nd=v;document.querySelectorAll('#dc .c').forEach(b=>b.classList.toggle('on',+b.dataset.v===v))}
+function addTask(date){const el=$('#tt'),L=el.value.split('\n').map(x=>x.trim()).filter(Boolean);if(!L.length)return el.focus();
+ const time=$('#tm').value||'',step=$('#ts')?$('#ts').value:'';
+ L.forEach((title,i)=>S.tasks.push({id:uid(),title,date,time:i?'':time,dur:nd,step:i?'':step,status:'pending',sf:0,ef:0,run:0}));nd=0;save();render()}
+function setTime(id,v){if(!v)return;const t=get(id);t.time=v;t.sf=0;t.ef=0;save();render()}
+function startT(id){const t=get(id);t.run=Date.now()+t.dur*6e4;t.ef=0;save();render()}
+function setSt(id,s){const t=get(id);t.status=s;if(s==='done'){t.run=0;if(t.step){const p=stepInfo(t.step);if(p)p.done=true}}save();render()}
+function del(id){S.tasks=S.tasks.filter(t=>t.id!==id);save();render()}
+function addGoal(){const t=$('#gt').value.trim();if(!t)return;S.goals.unshift({id:uid(),title:t,steps:[]});save();render()}
+function delGoal(id){S.goals=S.goals.filter(g=>g.id!==id);save();render()}
+function addStep(id){const i=$('#st-'+id),t=i.value.trim();if(!t)return;S.goals.find(g=>g.id===id).steps.push({id:uid(),t,done:false});save();render()}
+function togStep(id){const s=stepInfo(id);s.done=!s.done;save();render()}
+function cd(){document.querySelectorAll('.cd').forEach(e=>{const s=Math.max(0,Math.round((e.dataset.e-Date.now())/1000));e.textContent=`${pad(Math.floor(s/60))}:${pad(s%60)}`})}
+/* alarms */
+function beep(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();[0,.25,.5].forEach(d=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.2,ac.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d+.2);o.start(ac.currentTime+d);o.stop(ac.currentTime+d+.2)})}catch(e){}}
+function enable(){beep();if('Notification'in window&&Notification.permission==='default')Notification.requestPermission().then(render);push({k:'test'})}
+function notify(a,t){const m={start:['⏰ Time to start',t&&t.title],end:['✅ Did you finish?',t&&t.title],night:['🌙 Plan tomorrow','What will you get done tomorrow?'],test:['🔔 Alerts on','Alarms ring while this tab is open.']}[a.k];
+ try{if(Notification.permission==='granted')new Notification(m[0],{body:m[1]||'',tag:a.k+(a.id||''),requireInteraction:true})}catch(e){}}
+function push(a){Q.push(a);notify(a,a.id&&get(a.id));show()}
+function show(){const m=$('#mo');clearInterval(loop);if(!Q.length){m.className='';return}
+ const a=Q[0],t=a.id&&get(a.id);if(a.id&&!t){Q.shift();return show()}
+ const B=(x,l,g)=>`<button class="btn ${g?'ghost':''}" onclick="act('${x}')">${l}</button>`;let h;
+ if(a.k==='start')h=`<div class="em">⏰</div><h2>Time to start</h2><p>${esc(t.title)}</p>${t.dur?B('run',`▶ Start ${t.dur} min timer`):B('done','✅ Already done')}${B('snz','Snooze 10 min',1)}${t.dur?'':B('go','Dismiss',1)}`;
+ else if(a.k==='end')h=`<div class="em">✅</div><h2>Did you finish?</h2><p>${esc(t.title)}</p>${B('done','Yes, completed')}${B('more','Need 15 more minutes',1)}${B('move','No — move to tomorrow',1)}`;
+ else if(a.k==='night')h=`<div class="em">🌙</div><h2>Plan tomorrow</h2><p>Two minutes: what should tomorrow hold?</p>${B('plan','Plan now')}${B('later','Remind me in 15 min',1)}`;
+ else h=`<div class="em">🔔</div><h2>Alerts are on</h2><p>Alarms ring while this tab is open.</p>${B('go','Got it')}`;
+ m.className='on';m.innerHTML=`<div class="card">${h}</div>`;beep();loop=setInterval(beep,5000)}
+function act(x){const a=Q[0],t=a.id&&get(a.id);
+ if(t){if(x==='done')setSt(t.id,'done');
+  if(x==='run'){t.run=Date.now()+t.dur*6e4;t.ef=0}
+  if(x==='more'){t.run=Date.now()+9e5;t.ef=0}
+  if(x==='move'){t.status='missed';t.run=0;S.tasks.push({...t,id:uid(),date:tmr(),status:'pending',sf:0,ef:0,run:0})}
+  if(x==='snz'){const d=new Date(ts(t.date,t.time));d.setMinutes(d.getMinutes()+10);t.date=ymd(d);t.time=`${pad(d.getHours())}:${pad(d.getMinutes())}`;t.sf=0;t.ef=0;t.run=0}}
+ if(x==='plan'){tab='plan';planDate=tmr()}
+ if(x==='later')setTimeout(()=>push({k:'night'}),9e5);
+ Q.shift();save();render();show()}
+function tick(){const now=Date.now(),n=new Date();
+ S.tasks.forEach(t=>{if(t.status!=='pending')return;
+  const s=t.time?ts(t.date,t.time):0,e=t.run||(s&&t.dur?s+t.dur*6e4:0);
+  if(s&&!t.sf&&now>=s){t.sf=1;if(!t.run&&(!e||now<e))push({k:'start',id:t.id})}
+  if(e&&!t.ef&&now>=e){t.ef=1;push({k:'end',id:t.id})}});
+ if(n.getHours()*60+n.getMinutes()>=1290&&S.lastNight!==today()){S.lastNight=today();if(!S.tasks.some(t=>t.date===tmr()))push({k:'night'})}
+ save()}
+render();tick();setInterval(tick,15000);setInterval(cd,1000);
+</script></body></html>
